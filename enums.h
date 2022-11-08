@@ -1,5 +1,6 @@
 #ifndef CHESS_ENUMS_H
 #define CHESS_ENUMS_H
+#include <iostream>
 
 enum piece_type {
     bishop,

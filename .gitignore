@@ -1,3 +1,4 @@
 cmake-build-debug
 include
 lib
+!cmake-build-debug/pieces
