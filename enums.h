@@ -2,9 +2,9 @@
 #define CHESS_ENUMS_H
 #include <iostream>
 #include <map>
+#include "SFML/Graphics/Texture.hpp"
 
-class enums {
-public:
+namespace enums {
     enum piece_type {
         bishop,
         horse,
@@ -29,13 +29,47 @@ public:
     };
 
     static void invert_color(color& col) {
-        col = col == enums::color::black ? enums::color::white : enums::color::black;
+        col = col == enums::black ? enums::white : enums::black;
     }
 
     static inline std::map<color, std::string> color_map{
-            {color::white, "white"},
-            {color::black, "black"}
+            {white, "w"},
+            {black, "b"}
     };
 };
+
+class pieces {
+    class sub_pieces {
+    public:
+        std::map<enums::piece_type, sf::Texture> pieces{};
+
+        sf::Texture &operator[](enums::piece_type type){
+            return pieces[type];
+        }
+    };
+    std::map<enums::color, sub_pieces> pieces;
+
+    void loadPieces(){
+        pieces[enums::black][enums::pawn].loadFromFile("./pieces/b_pawn.png");
+        pieces[enums::white][enums::pawn].loadFromFile("./pieces/w_pawn.png");
+        pieces[enums::black][enums::bishop].loadFromFile("./pieces/b_bishop.png");
+        pieces[enums::white][enums::bishop].loadFromFile("./pieces/w_bishop.png");
+        pieces[enums::black][enums::tower].loadFromFile("./pieces/b_tower.png");
+        pieces[enums::white][enums::tower].loadFromFile("./pieces/w_tower.png");
+        pieces[enums::black][enums::king].loadFromFile("./pieces/b_king.png");
+        pieces[enums::white][enums::king].loadFromFile("./pieces/w_king.png");
+        pieces[enums::black][enums::horse].loadFromFile("./pieces/b_horse.png");
+        pieces[enums::white][enums::horse].loadFromFile("./pieces/w_horse.png");
+        pieces[enums::black][enums::queen].loadFromFile("./pieces/b_queen.png");
+        pieces[enums::white][enums::queen].loadFromFile("./pieces/w_queen.png");
+    }
+
+    friend int main();
+
+public:
+    sub_pieces &operator[](enums::color color){
+        return pieces[color];
+    }
+} tex_pieces;
 
 #endif
