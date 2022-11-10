@@ -18,6 +18,7 @@ int main() {
     sf::RenderWindow window{{800, 800}, "Chess"};
     window.setFramerateLimit(60);
     sf::Vector2f current_windowSize = (sf::Vector2f)window.getSize();
+    piece::w = &window;
 
     tex_pieces.loadPieces();
 
@@ -30,29 +31,29 @@ int main() {
     sf::Vector2i savedPosition;
 
     for (int i = 0; i < 8; i++) {
-        pieces.emplace_back(enums::pawn, enums::white, window, sf::Vector2i{i, 6});
-        pieces.emplace_back(enums::pawn, enums::black, window, sf::Vector2i{i, 1});
+        pieces.emplace_back(enums::pawn, enums::white, sf::Vector2i{i, 6});
+        pieces.emplace_back(enums::pawn, enums::black, sf::Vector2i{i, 1});
     }
 
     for (int i = 0; i < 8; i+=7){
-        pieces.emplace_back(enums::tower, enums::white, window, sf::Vector2i{i, 7});
-        pieces.emplace_back(enums::tower, enums::black, window, sf::Vector2i{i, 0});
+        pieces.emplace_back(enums::tower, enums::white,  sf::Vector2i{i, 7});
+        pieces.emplace_back(enums::tower, enums::black,  sf::Vector2i{i, 0});
     }
 
     for (int i = 1; i < 8; i+=5){
-        pieces.emplace_back(enums::horse, enums::white, window, sf::Vector2i{i, 7});
-        pieces.emplace_back(enums::horse, enums::black, window, sf::Vector2i{i, 0});
+        pieces.emplace_back(enums::horse, enums::white,  sf::Vector2i{i, 7});
+        pieces.emplace_back(enums::horse, enums::black,  sf::Vector2i{i, 0});
     }
 
     for (int i = 2; i < 8; i+=3){
-        pieces.emplace_back(enums::bishop, enums::white, window, sf::Vector2i{i, 7});
-        pieces.emplace_back(enums::bishop, enums::black, window, sf::Vector2i{i, 0});
+        pieces.emplace_back(enums::bishop, enums::white,  sf::Vector2i{i, 7});
+        pieces.emplace_back(enums::bishop, enums::black,  sf::Vector2i{i, 0});
     }
 
-    pieces.emplace_back(enums::queen, enums::white, window, sf::Vector2i{3, 7});
-    pieces.emplace_back(enums::queen, enums::black, window, sf::Vector2i{3, 0});
-    pieces.emplace_back(enums::king, enums::white, window, sf::Vector2i{4, 7});
-    pieces.emplace_back(enums::king, enums::black, window, sf::Vector2i{4, 0});
+    pieces.emplace_back(enums::queen, enums::white, sf::Vector2i{3, 7});
+    pieces.emplace_back(enums::queen, enums::black, sf::Vector2i{3, 0});
+    pieces.emplace_back(enums::king, enums::white, sf::Vector2i{4, 7});
+    pieces.emplace_back(enums::king, enums::black, sf::Vector2i{4, 0});
 
     for (int i = 0; i < 8; i++) {
         for (int l = 0; l < 8; l++) {
@@ -83,14 +84,13 @@ int main() {
                                     sf::Vector2i mv = pos.pos;
                                     bool move = true;
                                     for (; mv != p.pos; mv -= sf::Vector2i{sign(position.x), sign(position.y)}) {
-
                                         if (std::find_if(pieces.begin(), pieces.end(),
-                                                         [&mv](const piece &p) { return p.pos == mv; }) !=
-                                            pieces.end()) {
+                                                         [&mv, &touchedPiece](const piece &p) { return p.pos == mv && p.c == touchedPiece->c ; }) != pieces.end()) {
                                             move = false;
                                             break;
                                         }
                                     }
+
                                     pos.possible = move;
                                 }
                             }
@@ -187,6 +187,10 @@ int main() {
         if (event.type == sf::Event::MouseButtonReleased) {
             for (position& pos : positions) pos.possible = false;
             if (touchedPiece->pos != savedPosition) touchedPiece->hasMoved = true;
+            auto commonPiece = std::find_if(pieces.begin(), pieces.end(), [&touchedPiece](const piece& p) -> bool {return p.pos == touchedPiece->pos && p.c != touchedPiece->c;});
+            if (commonPiece != pieces.end()){
+                pieces.erase(commonPiece);
+            }
             touchedPiece = nullptr;
         }
         if (event.type == sf::Event::MouseMoved) {

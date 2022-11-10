@@ -7,14 +7,14 @@
 
 class piece : public sf::Sprite {
 private:
-    sf::RenderWindow &w;
+    static inline sf::RenderWindow* w = nullptr;
     sf::Vector2i pos;
     enums::piece_type p;
     enums::color c;
     bool hasMoved = false;
     friend int main();
 public:
-    piece(enums::piece_type piece, enums::color color, sf::RenderWindow &window, sf::Vector2i position) : sf::Sprite(), w(window) {
+    piece(enums::piece_type piece, enums::color color, sf::Vector2i position) : sf::Sprite() {
         setTexture(tex_pieces[color][piece]);
         pos = position;
         p = piece;
@@ -22,7 +22,7 @@ public:
     }
 
     void updatePiece(){
-        sf::Vector2u wSize = w.getSize();
+        sf::Vector2u wSize = piece::w->getSize();
         uint32_t smallest = std::min(wSize.x, wSize.y);
         setScale(sf::Vector2f{(float)smallest, (float)smallest} / 60.0f / 8.0f);
         if (wSize.x != smallest) {
