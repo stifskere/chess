@@ -25,7 +25,8 @@ namespace enums {
 
     enum color {
         white,
-        black
+        black,
+        possible
     };
 
     static void invert_color(color& col) {
@@ -34,7 +35,8 @@ namespace enums {
 
     static inline std::map<color, std::string> color_map{
             {white, "w"},
-            {black, "b"}
+            {black, "b"},
+            {possible, "p"}
     };
 };
 

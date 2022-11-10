@@ -9,11 +9,16 @@ class piece : public sf::Sprite {
 private:
     sf::RenderWindow &w;
     sf::Vector2i pos;
-    friend class position;
+    enums::piece_type p;
+    enums::color c;
+    bool hasMoved = false;
+    friend int main();
 public:
     piece(enums::piece_type piece, enums::color color, sf::RenderWindow &window, sf::Vector2i position) : sf::Sprite(), w(window) {
         setTexture(tex_pieces[color][piece]);
         pos = position;
+        p = piece;
+        c = color;
     }
 
     void updatePiece(){
