@@ -85,12 +85,11 @@ int main() {
                                     bool move = true;
                                     for (; mv != p.pos; mv -= sf::Vector2i{sign(position.x), sign(position.y)}) {
                                         if (std::find_if(pieces.begin(), pieces.end(),
-                                                         [&mv, &touchedPiece](const piece &p) { return p.pos == mv && p.c == touchedPiece->c ; }) != pieces.end()) {
+                                                         [&mv, &touchedPiece](piece &p) { return p.pos == mv && touchedPiece->c == p.c; }) != pieces.end()) {
                                             move = false;
                                             break;
                                         }
                                     }
-
                                     pos.possible = move;
                                 }
                             }
@@ -186,6 +185,7 @@ int main() {
         }
         if (event.type == sf::Event::MouseButtonReleased) {
             for (position& pos : positions) pos.possible = false;
+            if (!touchedPiece) return;
             if (touchedPiece->pos != savedPosition) touchedPiece->hasMoved = true;
             auto commonPiece = std::find_if(pieces.begin(), pieces.end(), [&touchedPiece](const piece& p) -> bool {return p.pos == touchedPiece->pos && p.c != touchedPiece->c;});
             if (commonPiece != pieces.end()){
