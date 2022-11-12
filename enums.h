@@ -33,17 +33,12 @@ namespace enums {
         col = col == enums::black ? enums::white : enums::black;
     }
 
-    static color invert_color_return(color col) {
-        invert_color(col);
-        return col;
-    }
-
     static inline std::map<color, std::string> color_map{
             {white, "w"},
             {black, "b"},
             {possible, "p"}
     };
-};
+}
 
 class pieces {
     class sub_pieces {

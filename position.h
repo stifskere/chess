@@ -12,7 +12,6 @@ T lerp(T a, T b, float t){
 class position : public sf::RectangleShape {
 private:
     sf::RenderWindow& w;
-    bool possible = false;
     uint32_t fillColor;
     friend int main();
 public:
@@ -28,7 +27,8 @@ public:
     void shapeUpdate(){
         sf::Vector2u wSize = w.getSize();
         uint32_t smallest = std::min(wSize.x, wSize.y);
-        if (possible) setFillColor(sf::Color(lerp<uint8_t>(0xff, (fillColor >> 24 & 0xff), 0.5f), lerp<uint8_t>(0xff, (fillColor >> 16 & 0xff), 0.5f), lerp<uint8_t>(0x00, (fillColor >> 8 & 0xff), 0.5f), lerp<uint8_t>(0xff, fillColor & 0xff, 0.5f)));
+        if (origin) setFillColor(sf::Color(lerp<uint8_t>(0xff, (fillColor >> 24 & 0xff), 0.5f), lerp<uint8_t>(0x00, (fillColor >> 16 & 0xff), 0.5f), lerp<uint8_t>(0x00, (fillColor >> 8 & 0xff), 0.5f), lerp<uint8_t>(0xff, fillColor & 0xff, 0.5f)));
+        else if (possible) setFillColor(sf::Color(lerp<uint8_t>(0xff, (fillColor >> 24 & 0xff), 0.5f), lerp<uint8_t>(0xff, (fillColor >> 16 & 0xff), 0.5f), lerp<uint8_t>(0x00, (fillColor >> 8 & 0xff), 0.5f), lerp<uint8_t>(0xff, fillColor & 0xff, 0.5f)));
         else setFillColor(sf::Color(fillColor));
         setSize(sf::Vector2f{(float)smallest, (float)smallest} / 8.f);
         if (wSize.x != smallest) {
@@ -37,6 +37,8 @@ public:
             setPosition((sf::Vector2f) (pos * (int) smallest) / 8.f + sf::Vector2f{0, (float)(wSize.y - wSize.x) / 2.f});
         }
     }
+
+    bool possible = false, origin = false;
 };
 
 #endif

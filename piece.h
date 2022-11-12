@@ -8,9 +8,7 @@
 class piece : public sf::Sprite {
 private:
     static inline sf::RenderWindow* w = nullptr;
-    sf::Vector2i pos;
     enums::piece_type p;
-    enums::color c;
     bool hasMoved = false;
     friend int main();
 public:
@@ -31,6 +29,9 @@ public:
             setPosition((sf::Vector2f) (pos * (int) smallest) / 8.f + sf::Vector2f{0, (float)(wSize.y - wSize.x) / 2.f});
         }
     }
+
+    sf::Vector2i pos;
+    enums::color c;
 };
 
 #endif
