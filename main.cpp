@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <thread>
 #include <mutex>
+#include <fstream>
 
 eventHandler<void(const sf::Event &)> onEvent;
 
@@ -58,30 +59,29 @@ int main() {
 
     sf::Sprite sel_queen, sel_horse, sel_tower, sel_bishop;
 
-    for (int i = 0; i < 8; i++) {
-        pieces.emplace_back(enums::pawn, enums::white, sf::Vector2i{i, 6});
-        pieces.emplace_back(enums::pawn, enums::black, sf::Vector2i{i, 1});
-    }
+    std::ifstream stream{"table.tbs"};
 
-    for (int i = 0; i < 8; i+=7){
-        pieces.emplace_back(enums::tower, enums::white,  sf::Vector2i{i, 7});
-        pieces.emplace_back(enums::tower, enums::black,  sf::Vector2i{i, 0});
+    for (int i = 0; i < 64; i++){
+        std::string name;
+        stream >> name;
+        if (name == "mt") continue;
+        else if (name == "bk") pieces.emplace_back(enums::king, enums::black, sf::Vector2i{i % 8, i / 8});
+        else if (name == "bq") pieces.emplace_back(enums::queen, enums::black, sf::Vector2i{i % 8, i / 8});
+        else if (name == "bb") pieces.emplace_back(enums::bishop, enums::black, sf::Vector2i{i % 8, i / 8});
+        else if (name == "bh") pieces.emplace_back(enums::horse, enums::black, sf::Vector2i{i % 8, i / 8});
+        else if (name == "bt") pieces.emplace_back(enums::tower, enums::black, sf::Vector2i{i % 8, i / 8});
+        else if (name == "bp") pieces.emplace_back(enums::pawn, enums::black, sf::Vector2i{i % 8, i / 8});
+        else if (name == "wk") pieces.emplace_back(enums::king, enums::white, sf::Vector2i{i % 8, i / 8});
+        else if (name == "wq") pieces.emplace_back(enums::queen, enums::white, sf::Vector2i{i % 8, i / 8});
+        else if (name == "wb") pieces.emplace_back(enums::bishop, enums::white, sf::Vector2i{i % 8, i / 8});
+        else if (name == "wh") pieces.emplace_back(enums::horse, enums::white, sf::Vector2i{i % 8, i / 8});
+        else if (name == "wt") pieces.emplace_back(enums::tower, enums::white, sf::Vector2i{i % 8, i / 8});
+        else if (name == "wp") pieces.emplace_back(enums::pawn, enums::white, sf::Vector2i{i % 8, i / 8});
+        else {
+            std::cerr << "Invalid table value " << name << "\n";
+            return -1;
+        }
     }
-
-    for (int i = 1; i < 8; i+=5){
-        pieces.emplace_back(enums::horse, enums::white,  sf::Vector2i{i, 7});
-        pieces.emplace_back(enums::horse, enums::black,  sf::Vector2i{i, 0});
-    }
-
-    for (int i = 2; i < 8; i+=3){
-        pieces.emplace_back(enums::bishop, enums::white,  sf::Vector2i{i, 7});
-        pieces.emplace_back(enums::bishop, enums::black,  sf::Vector2i{i, 0});
-    }
-
-    pieces.emplace_back(enums::queen, enums::white, sf::Vector2i{3, 7});
-    pieces.emplace_back(enums::queen, enums::black, sf::Vector2i{3, 0});
-    pieces.emplace_back(enums::king, enums::white, sf::Vector2i{4, 7});
-    pieces.emplace_back(enums::king, enums::black, sf::Vector2i{4, 0});
 
     for (int i = 0; i < 8; i++) {
         for (int l = 0; l < 8; l++) {
