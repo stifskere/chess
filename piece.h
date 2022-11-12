@@ -19,6 +19,10 @@ public:
         c = color;
     }
 
+    void updateTexture(){
+        setTexture(tex_pieces[c][p]);
+    }
+
     void updatePiece(){
         sf::Vector2u wSize = piece::w->getSize();
         uint32_t smallest = std::min(wSize.x, wSize.y);
