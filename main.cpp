@@ -69,16 +69,16 @@ int main() {
     if (!stream.is_open()){
         std::cerr << "file table.tbs is missing creating it...";
         std::ofstream create_stream{"table.tbs"};
-        create_stream << "tl 8\n"
-                         "bh bh bh bh bh bh bh bh\n"
-                         "bh bh bh bh bh bh bh bh\n"
+        create_stream << "tb 8\n"
+                         "bt bh bb bq bk bb bh bt\n"
+                         "bp bp bp bp bp bp bp bp\n"
                          "mt mt mt mt mt mt mt mt\n"
                          "mt mt mt mt mt mt mt mt\n"
                          "mt mt mt mt mt mt mt mt\n"
                          "mt mt mt mt mt mt mt mt\n"
-                         "mt mt mt mt mt mt mt mt\n"
-                         "wq mt wq mt mt wq mt wt\n"
-                         "no";
+                         "wp wp wp wp wp wp wp wp\n"
+                         "wt wh wb wq wk wb wh wt\n"
+                         "end";
         create_stream.close();
         stream.open("table.tbs");
     }
