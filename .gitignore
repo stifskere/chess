@@ -2,3 +2,4 @@ cmake-build-*
 include
 lib
 !cmake-build-*/pieces
+!cmake-build-*/table.tbs
