@@ -8,7 +8,7 @@ image goes here
 
 ## Downloads
 
-Just head to the releases page to download a staticaly compiled version,
+Just head to the releases page to download a statically compiled version,
 
 or if you want to build it yourself with `cmake` you need to make sure to install [sfml](https://www.sfml-dev.org) before that.
 
