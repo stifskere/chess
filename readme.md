@@ -1,10 +1,10 @@
 # CHESS
 
-not to be confused with the word [cheese](https://en.wikipedia.org/wiki/Cheese)
+(not to be confused with the word [cheese](https://en.wikipedia.org/wiki/Cheese))
 
 This chess is made with c++ 17 and sfml for windows.
 
-image goes here
+<img src="https://user-images.githubusercontent.com/79871802/201465068-6ce77744-7d95-4b19-acba-033f68d471c2.png" alt="example" width="500"/>
 
 ## Downloads
 
