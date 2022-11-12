@@ -26,11 +26,11 @@ public:
     void updatePiece(){
         sf::Vector2u wSize = piece::w->getSize();
         uint32_t smallest = std::min(wSize.x, wSize.y);
-        setScale(sf::Vector2f{(float)smallest, (float)smallest} / 60.0f / 8.0f);
+        setScale(sf::Vector2f{(float)smallest, (float)smallest} / 60.0f / table::size);
         if (wSize.x != smallest) {
-            setPosition((sf::Vector2f) (pos * (int) smallest) / 8.f + sf::Vector2f{(float)(wSize.x - wSize.y) / 2.f, 0});
+            setPosition((sf::Vector2f) (pos * (int) smallest) / table::size + sf::Vector2f{(float)(wSize.x - wSize.y) / 2.f, 0});
         }else{
-            setPosition((sf::Vector2f) (pos * (int) smallest) / 8.f + sf::Vector2f{0, (float)(wSize.y - wSize.x) / 2.f});
+            setPosition((sf::Vector2f) (pos * (int) smallest) / table::size + sf::Vector2f{0, (float)(wSize.y - wSize.x) / 2.f});
         }
     }
 

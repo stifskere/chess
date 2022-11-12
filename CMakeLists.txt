@@ -9,5 +9,5 @@ set(CMAKE_CXX_STANDARD 17)
 link_directories(lib)
 include_directories(include)
 
-add_executable(Chess WIN32 main.cpp position.h eventHandler.h piece.h enums.h string_utilities.h)
-target_link_libraries(Chess sfml-graphics-s sfml-main sfml-window-s sfml-system-s winmm opengl32)
+add_executable(Chess WIN32 main.cpp position.h eventHandler.h piece.h enums.h string_utilities.h table_data.h table.h)
+target_link_libraries(Chess sfml-graphics-s sfml-main sfml-window-s sfml-system-s winmm opengl32 freetype)
