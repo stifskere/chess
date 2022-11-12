@@ -228,7 +228,7 @@ int main() {
         }
     };
 
-    std::thread draw_thread{[&current_windowSize, &window, &positions, &pieces, &selectPieceMenu, &selectPieceMenuColor, &pieceToChange, &sel_bishop, &sel_horse, &sel_queen, &sel_tower](){
+    std::thread draw_thread{[&current_windowSize, &window, &positions, &pieces, &selectPieceMenu, &selectPieceMenuColor, &sel_bishop, &sel_horse, &sel_queen, &sel_tower](){
         while (true) {
             globalMutex.lock();
             if (!window.isOpen()) return;
