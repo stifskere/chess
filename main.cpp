@@ -10,10 +10,6 @@ eventHandler<void(const sf::Event &)> onEvent;
 
 std::mutex globalMutex;
 
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
 void move(std::vector<position> &positions, std::vector<piece> &pieces, piece p, int ax, int ay, int d = 8){
     for (int i = 0, x = 0, y = 0; i < d; i++, x+=ax, y+=ay) {
         auto it = std::find_if(positions.begin(), positions.end(),
@@ -30,11 +26,20 @@ void move(std::vector<position> &positions, std::vector<piece> &pieces, piece p,
     }
 }
 
+bool hasMouseBounds(const sf::Sprite& drawable, const sf::Window& window){
+    return drawable.getGlobalBounds().contains((sf::Vector2f)sf::Mouse::getPosition(window));
+}
+
 int main() {
-    sf::RenderWindow window{{800, 800}, "Chess", sf::Style::Titlebar};
+    sf::RenderWindow window{{800, 800}, "Chess"};
     window.setFramerateLimit(60);
     sf::Vector2f current_windowSize = (sf::Vector2f)window.getSize();
     piece::w = &window;
+
+    sf::Image img;
+    img.loadFromFile("./pieces/chessIcon.png");
+
+    window.setIcon(img.getSize().x, img.getSize().y, img.getPixelsPtr());
 
     tex_pieces.loadPieces();
 
@@ -46,6 +51,12 @@ int main() {
     piece* touchedPiece = nullptr;
     sf::Vector2i savedPosition;
     enums::color current_team = enums::white;
+
+    bool selectPieceMenu = false;
+    enums::color selectPieceMenuColor = enums::white;
+    piece* pieceToChange = nullptr;
+
+    sf::Sprite sel_queen, sel_horse, sel_tower, sel_bishop;
 
     for (int i = 0; i < 8; i++) {
         pieces.emplace_back(enums::pawn, enums::white, sf::Vector2i{i, 6});
@@ -85,13 +96,37 @@ int main() {
         enums::invert_color(current_color);
     }
 
-    onEvent += [&window, &current_windowSize, &pieces, &touchedPiece, &positions, &savedPosition, &current_team](const sf::Event &event) -> void {
+    onEvent += [&window, &current_windowSize, &pieces, &touchedPiece, &positions, &savedPosition, &current_team, &selectPieceMenu, &selectPieceMenuColor, &pieceToChange, &sel_tower, &sel_queen, &sel_horse, &sel_bishop](const sf::Event &event) -> void {
         if (event.type == sf::Event::Closed) window.close();
         if (event.type == sf::Event::Resized) current_windowSize = {(float)event.size.width, (float)event.size.height};
         if (event.type == sf::Event::MouseButtonPressed) {
+            if (selectPieceMenu) {
+                if (hasMouseBounds(sel_tower, window)) {
+                    selectPieceMenu = false;
+                    pieceToChange->p = enums::tower;
+                    pieceToChange->updateTexture();
+                    pieceToChange = nullptr;
+                } else if (hasMouseBounds(sel_bishop, window)) {
+                    selectPieceMenu = false;
+                    pieceToChange->p = enums::bishop;
+                    pieceToChange->updateTexture();
+                    pieceToChange = nullptr;
+                } else if (hasMouseBounds(sel_horse, window)) {
+                    selectPieceMenu = false;
+                    pieceToChange->p = enums::horse;
+                    pieceToChange->updateTexture();
+                    pieceToChange = nullptr;
+                } else if (hasMouseBounds(sel_queen, window)) {
+                    selectPieceMenu = false;
+                    pieceToChange->p = enums::queen;
+                    pieceToChange->updateTexture();
+                    pieceToChange = nullptr;
+                }
+                return;
+            }
             for (piece& p : pieces) {
                 p.updatePiece();
-                if (p.getGlobalBounds().contains((sf::Vector2f)sf::Mouse::getPosition(window))) {
+                if (hasMouseBounds(p, window)) {
                     if (p.c != current_team) return;
                     touchedPiece = &p;
                     switch (p.p){
@@ -172,6 +207,11 @@ int main() {
                 touchedPiece->hasMoved = true;
                 enums::invert_color(current_team);
             }
+            if (touchedPiece->p == enums::pawn && touchedPiece->pos.y == (touchedPiece->c == enums::black ? 7 : 0)) {
+                selectPieceMenu = true;
+                selectPieceMenuColor = touchedPiece->c;
+                pieceToChange = touchedPiece;
+            }
             auto commonPiece = std::find_if(pieces.begin(), pieces.end(), [&touchedPiece](const piece& p) -> bool {return p.pos == touchedPiece->pos && p.c != touchedPiece->c;});
             if (commonPiece != pieces.end()){
                 pieces.erase(commonPiece);
@@ -188,7 +228,7 @@ int main() {
         }
     };
 
-    std::thread draw_thread{[&current_windowSize, &window, &positions, &pieces](){
+    std::thread draw_thread{[&current_windowSize, &window, &positions, &pieces, &selectPieceMenu, &selectPieceMenuColor, &pieceToChange, &sel_bishop, &sel_horse, &sel_queen, &sel_tower](){
         while (true) {
             globalMutex.lock();
             if (!window.isOpen()) return;
@@ -204,6 +244,43 @@ int main() {
             for (piece p : pieces){
                 p.updatePiece();
                 window.draw(p);
+            }
+
+            if (selectPieceMenu){
+                sf::RectangleShape obscure{current_windowSize};
+                obscure.setFillColor(sf::Color(0x0000003F));
+                window.draw(obscure);
+
+                sf::RectangleShape shape{{current_windowSize.x - 8, current_windowSize.y / 4 - 4}};
+                shape.setFillColor(sf::Color(0x422601ff));
+                shape.setOutlineThickness(4);
+                shape.setOutlineColor(sf::Color::Black);
+                shape.setPosition(current_windowSize - sf::Vector2f{current_windowSize.x - 4, current_windowSize.y / 4});
+                window.draw(shape);
+
+                float min = std::min(current_windowSize.x, current_windowSize.y) / 4.25f;
+                float margin_line = current_windowSize.x / 100.0f;
+                float horizontal_margin = (current_windowSize.x - min * 4 - margin_line * 3) / 2.0f;
+
+                sel_tower.setTexture(tex_pieces[selectPieceMenuColor][enums::tower]);
+                sel_tower.setScale(sf::Vector2f{min, min} / 60.0f);
+                sel_tower.setPosition(sf::Vector2f{horizontal_margin, current_windowSize.y - current_windowSize.y / 4});
+                window.draw(sel_tower);
+
+                sel_horse.setTexture(tex_pieces[selectPieceMenuColor][enums::horse]);
+                sel_horse.setScale(sf::Vector2f{min, min} / 60.0f);
+                sel_horse.setPosition(sf::Vector2f{min + margin_line + horizontal_margin, current_windowSize.y - current_windowSize.y / 4});
+                window.draw(sel_horse);
+
+                sel_bishop.setTexture(tex_pieces[selectPieceMenuColor][enums::bishop]);
+                sel_bishop.setScale(sf::Vector2f{min, min} / 60.0f);
+                sel_bishop.setPosition(sf::Vector2f{min * 2 + margin_line * 2 + horizontal_margin, current_windowSize.y - current_windowSize.y / 4});
+                window.draw(sel_bishop);
+
+                sel_queen.setTexture(tex_pieces[selectPieceMenuColor][enums::queen]);
+                sel_queen.setScale(sf::Vector2f{min, min} / 60.0f);
+                sel_queen.setPosition(sf::Vector2f{min * 3 + margin_line * 3 + horizontal_margin, current_windowSize.y - current_windowSize.y / 4});
+                window.draw(sel_queen);
             }
 
             window.setView(sf::View(sf::FloatRect{{0, 0}, {current_windowSize}}));
