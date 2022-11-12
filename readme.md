@@ -14,9 +14,9 @@ or if you want to build it yourself with `cmake` you need to make sure to instal
 
 ## Modifications
 
-You can change all the images in the `pieces` folder, just don't change image names, any image modification must be `60px x 60px`
+You can change all the images in the [`pieces`](https://github.com/stifskere/chess/tree/main/cmake-build-debug/pieces) folder, just don't change image names, any image modification must be `60px x 60px`
 
-If you want to change the table layout, modify the `table.tbs` file
+If you want to change the table layout, modify the [`table.tbs`](https://github.com/stifskere/chess/blob/main/cmake-build-debug/table.tbs) file
 
 #### table names
 
