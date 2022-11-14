@@ -12,14 +12,14 @@ eventHandler<void(const sf::Event &)> onEvent;
 
 std::mutex globalMutex;
 
-void move(piece p, int ax, int ay, int d = (int)table::size){
+void move(piece p, int ax, int ay, int d = (int)table::size, std::vector<position> &positions = table::positions, std::vector<piece> pieces = table::pieces){
     for (int i = 0, x = 0, y = 0; i < d; i++, x+=ax, y+=ay) {
-        auto it = std::find_if(table::positions.begin(), table::positions.end(),
+        auto it = std::find_if(positions.begin(), positions.end(),
                                [x, y, &p](const position &pos) { return pos.pos == sf::Vector2i{x, y} + p.pos; });
-        if (it != table::positions.end()) {
-            auto pc = std::find_if(table::pieces.begin(), table::pieces.end(),
+        if (it != positions.end()) {
+            auto pc = std::find_if(pieces.begin(), pieces.end(),
                                    [x, y, &p](const piece &piece) { return piece.pos == sf::Vector2i{x, y} + p.pos; });
-            if (pc == table::pieces.end() || pc->pos == p.pos) it->possible = true;
+            if (pc == pieces.end() || pc->pos == p.pos) it->possible = true;
             else {
                 it->possible = pc->c != p.c;
                 break;
@@ -275,14 +275,28 @@ int main() {
                                 pos.possible = std::find_if(table::pieces.begin(), table::pieces.end(), [&mv, &p](const piece &pc) { return pc.pos == mv && p.c == pc.c; }) == table::pieces.end();
                             }
                             break;
-                        case enums::king:
-                            for (position &pos : table::positions) {
+                        case enums::king: {
+                            std::vector<piece> pieces = table::pieces;
+                            pieces.erase(std::find(pieces.begin(), pieces.end(), p));
+                            for (const piece &z : table::pieces){
+                                if (z.c != p.c)
+                                    checkPieces(z, table::positions, pieces);
+                            }
+                            std::vector<position> copy = table::positions;
+                            for (position &pos: table::positions) pos.possible = false;
+                            for (position &pos: table::positions) {
                                 sf::Vector2i diff = pos.pos - p.pos;
                                 if (diff.y > 1 || diff.x > 1 || diff.x < -1 || diff.y < -1) continue;
                                 sf::Vector2i mv = pos.pos;
-                                pos.possible = std::find_if(table::pieces.begin(), table::pieces.end(), [&mv, &p](const piece &pc) { return pc.pos == mv && p.c == pc.c; }) == table::pieces.end() || pos.pos == p.pos;
+                                pos.possible = std::find_if(table::pieces.begin(), table::pieces.end(),
+                                                            [&mv, &p](const piece &pc) {
+                                                                return pc.pos == mv && p.c == pc.c;
+                                                            }) == table::pieces.end() || pos.pos == p.pos;
+                                pos.possible = pos.possible && (std::find_if(copy.begin(),
+                                                                 copy.end(), [&mv](const position &pos){return pos.pos == mv && pos.possible;}) == copy.end() || table::ck);
                             }
                             break;
+                        }
                         case enums::pawn:
                             if (std::find_if(table::pieces.begin(), table::pieces.end(), [&p](const piece& piece) -> bool{
                                 return p.pos + sf::Vector2i{0, p.c == enums::white ? -1 : 1} == piece.pos;

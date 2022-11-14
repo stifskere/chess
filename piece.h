@@ -35,6 +35,9 @@ public:
 
     sf::Vector2i pos;
     enums::color c;
+    bool operator==(const piece &_p) const{
+        return _p.c == c && _p.pos == pos && _p.p == p;
+    }
 };
 
 #endif
