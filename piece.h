@@ -6,12 +6,11 @@
 #include <SFML/Graphics.hpp>
 
 class piece : public sf::Sprite {
-private:
+public:
     static inline sf::RenderWindow* w = nullptr;
     enums::piece_type p;
     bool hasMoved = false;
-    friend int main();
-public:
+
     piece(enums::piece_type piece, enums::color color, sf::Vector2i position) : sf::Sprite() {
         setTexture(tex_pieces[color][piece]);
         pos = position;

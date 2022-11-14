@@ -32,6 +32,70 @@ bool hasMouseBounds(const sf::Sprite& drawable, const sf::Window& window){
     return drawable.getGlobalBounds().contains((sf::Vector2f)sf::Mouse::getPosition(window));
 }
 
+void checkPieces(const piece &p, std::vector<position> &positions = table::positions, std::vector<piece> pieces = table::pieces){
+    switch (p.p){
+        case enums::bishop:
+            move(p, 1, 1, (int)table::size, positions, pieces);
+            move(p, -1, 1, (int)table::size, positions, pieces);
+            move(p, 1, -1, (int)table::size, positions, pieces);
+            move(p, -1, -1, (int)table::size, positions, pieces);
+            break;
+        case enums::horse:
+            for (position &pos : positions) {
+                sf::Vector2i diff = pos.pos - p.pos;
+                if (pos.pos == p.pos) pos.possible = true;
+                if (std::abs(diff.x) + std::abs(diff.y) != 3 || pos.pos.x == p.pos.x || pos.pos.y == p.pos.y) continue;
+                sf::Vector2i mv = pos.pos;
+                pos.possible = std::find_if(pieces.begin(), pieces.end(), [&mv, &p](const piece &pc) { return pc.pos == mv && p.c == pc.c; }) == pieces.end();
+            }
+            break;
+        case enums::king:
+            for (position &pos : positions) {
+                sf::Vector2i diff = pos.pos - p.pos;
+                if (diff.y > 1 || diff.x > 1 || diff.x < -1 || diff.y < -1) continue;
+                sf::Vector2i mv = pos.pos;
+                pos.possible = std::find_if(pieces.begin(), pieces.end(), [&mv, &p](const piece &pc) { return pc.pos == mv && p.c == pc.c; }) == pieces.end() || pos.pos == p.pos;
+            }
+            break;
+        case enums::pawn:
+            if (std::find_if(pieces.begin(), pieces.end(), [&p](const piece& piece) -> bool{
+                return p.pos + sf::Vector2i{0, p.c == enums::white ? -1 : 1} == piece.pos;
+            }) == pieces.end()) {
+                move(p, 0, p.c == enums::white ? -1 : 1, p.hasMoved ? 2 : 3, positions, pieces);
+            }else{
+                move(p, 0, 1, 1, positions, pieces);
+            }
+
+            if (std::find_if(pieces.begin(), pieces.end(), [&p](const piece& piece) -> bool{
+                return p.pos + sf::Vector2i{1, p.c == enums::white ? -1 : 1} == piece.pos;
+            }) != pieces.end()) {
+                move(p, 1, p.c == enums::white ? -1 : 1, 2, positions, pieces);
+            }
+
+            if (std::find_if(pieces.begin(), pieces.end(), [&p](const piece& piece) -> bool{
+                return p.pos + sf::Vector2i{-1, p.c == enums::white ? -1 : 1} == piece.pos;
+            }) != pieces.end()) {
+                move(p, -1, p.c == enums::white ? -1 : 1, 2, positions, pieces);
+            }
+            break;
+        case enums::queen:
+            move(p, 1, 1, (int)table::size, positions, pieces);
+            move(p, -1, 1, (int)table::size, positions, pieces);
+            move(p, 1, -1, (int)table::size, positions, pieces);
+            move(p, -1, -1, (int)table::size, positions, pieces);
+            move(p, 1, 0, (int)table::size, positions, pieces);
+            move(p, -1, 0, (int)table::size, positions, pieces);
+            move(p, 0, 1, (int)table::size, positions, pieces);
+            move(p, 0, -1, (int)table::size, positions, pieces);
+            break;
+        case enums::tower:
+            move(p, 1, 0, (int)table::size, positions, pieces);
+            move(p, -1, 0, (int)table::size, positions, pieces);
+            move(p, 0, 1, (int)table::size, positions, pieces);
+            move(p, 0, -1, (int)table::size, positions, pieces);
+            break;
+    }
+}
 
 int main() {
     bool error = false;
@@ -69,7 +133,8 @@ int main() {
     if (!stream.is_open()){
         std::cerr << "file table.tbs is missing creating it...";
         std::ofstream create_stream{"table.tbs"};
-        create_stream << "tb 8\n"
+        create_stream << "ck true"
+                         "tb 8\n"
                          "bt bh bb bq bk bb bh bt\n"
                          "bp bp bp bp bp bp bp bp\n"
                          "mt mt mt mt mt mt mt mt\n"
@@ -86,6 +151,11 @@ int main() {
     while (curr != "end"){
         if (stream.eof()) break;
         stream >> curr;
+        if (curr == "ck") {
+            std::string value;
+            stream >> value;
+            table::ck = string_utilities::to_lower(value) == "true";
+        }
         if (curr == "tb") {
             stream >> table::size;
             for (int i = 0; i < (int)(table::size*table::size); i++) {
@@ -258,10 +328,6 @@ int main() {
             }
         }
         if (event.type == sf::Event::MouseButtonReleased) {
-            for (position& pos : table::positions) {
-                pos.possible = false;
-                pos.origin = false;
-            }
             if (!touchedPiece) return;
             if (touchedPiece->pos != savedPosition) {
                 touchedPiece->hasMoved = true;
@@ -275,6 +341,10 @@ int main() {
             auto commonPiece = std::find_if(table::pieces.begin(), table::pieces.end(), [&touchedPiece](const piece& p) -> bool {return p.pos == touchedPiece->pos && p.c != touchedPiece->c;});
             if (commonPiece != table::pieces.end()){
                 table::pieces.erase(commonPiece);
+            }
+            for (position& pos : table::positions) {
+                pos.possible = false;
+                pos.origin = false;
             }
             touchedPiece = nullptr;
         }

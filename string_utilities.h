@@ -25,6 +25,16 @@ namespace string_utilities {
         }
         return main;
     }
+
+    std::string to_lower(std::string text) {
+        std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c){return std::tolower(c); });
+        return text;
+    }
+
+    std::string to_upper(std::string text) {
+        std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c){return std::toupper(c); });
+        return text;
+    }
 }
 
 #endif
